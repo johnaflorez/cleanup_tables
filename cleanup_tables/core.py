@@ -150,17 +150,16 @@ class CleanUPTablesManager(CleanUPTableConstants, CommonUtilsMethodsMixin):
                 self._manage_transaction()
         except Exception as err:
             self._manage_transaction(transaction_type='rollback')
-            self.logs_deleted = 0
             self.errors = '{0}'.format(err)
 
-    @staticmethod
-    def _execute_sql(sql):
+    def _execute_sql(self, sql):
         """
         Execute SQL query to clean the tables
         """
 
         with connection.cursor() as cursor:
             cursor.execute(sql)
+            self.logs_deleted += cursor.rowcount
 
     def _db_table_name(self):
         """
@@ -205,7 +204,7 @@ class CleanUPTablesManager(CleanUPTableConstants, CommonUtilsMethodsMixin):
         except transaction.TransactionManagementError:
             pass  # This code isn't under transaction management
 
-    def _finish_instance(self, table_log, status=SUCCESS):
+    def _finish_instance(self, table, status=SUCCESS):
         """
         Update the table log instance with the process result.
         """
@@ -213,10 +212,10 @@ class CleanUPTablesManager(CleanUPTableConstants, CommonUtilsMethodsMixin):
         if self.errors:
             status = ERROR
 
-        table_log.status = status
-        table_log.errors = self.errors
-        table_log.logs_deleted = self.logs_deleted
-        table_log.total_logs_deleted += self.logs_deleted
-        table_log.last_executed = self.get_current_date()
-        table_log.updated_by = self.user
-        table_log.save()
+        table.status = status
+        table.errors = self.errors
+        table.logs_deleted = self.logs_deleted
+        table.total_logs_deleted += self.logs_deleted
+        table.last_executed = self.get_current_date()
+        table.updated_by = self.user
+        table.save()

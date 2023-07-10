@@ -58,11 +58,12 @@ class CleanUPTablesForm(forms.ModelForm):
 
     def clean_sql_file(self):
         sql_file = self.cleaned_data.get('sql_file')
-        extension = os.path.splitext(sql_file.name)[1].lower()
-        if extension not in self.sql_extensions:
-            raise forms.ValidationError(
-                'The file uploaded has no extension .sql'
-            )
+        if sql_file:
+            extension = os.path.splitext(sql_file.name)[1].lower()
+            if extension not in self.sql_extensions:
+                raise forms.ValidationError(
+                    'The file uploaded has no extension .sql'
+                )
         return sql_file
 
     def save(self, commit=False):
