@@ -22,4 +22,6 @@ class CleanUPTableHelpTextModel:
         <br>&emsp;- 1_month, 3_months
         <br>&emsp;- 1_year, 2_years
     """
+    SQL_FILE = "(Optional) This field can be filled in case the default SQL code changes too much for what is " \
+               "needed in this configuration."
     PRIORITY = "This value can be used to define the periodicity with which certain tables are cleaned."

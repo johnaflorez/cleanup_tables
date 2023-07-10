@@ -30,7 +30,12 @@ class CleanUPTables(models.Model):
     table_name = models.CharField(max_length=255, unique=True, help_text=CleanUPTableHelpTextModel.TABLE_NAME)
     date_field = models.CharField(max_length=255, help_text=CleanUPTableHelpTextModel.DATE_FIELD)
     clean_up_rule = models.CharField(max_length=255, help_text=CleanUPTableHelpTextModel.CLEAN_UP_RULE)
-    sql_file = models.FileField(null=True, blank=True, upload_to=get_upload_path)
+    sql_file = models.FileField(
+        null=True,
+        blank=True,
+        upload_to=get_upload_path,
+        help_text=CleanUPTableHelpTextModel.SQL_FILE
+    )
     priority = models.CharField(
         max_length=100,
         choices=CLEAN_UP_PRIORITY_OPTIONS,

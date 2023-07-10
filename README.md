@@ -5,7 +5,7 @@ Application to remove records from django models
 
 Installation:
 -------------
-Use ``pip``:
+Add this new requirement:
 
     pip install -e git+https://github.com/johnaflorez/cleanup_tables.git@1.0.1#egg=cleanup_tables
 
@@ -28,6 +28,50 @@ Add this in the INSTALLED_APPS:
         # ...
     )
 
+Migration:
+-----------
+Django 1.2:
+
+    python manage.py schemamigration cleanup_tables --auto
+    python manage.py migrate cleanup_tables
+
+Django >=1.11:
+
+    python manage.py makemigrations
+    python manage.py migrate
+
+
 HOW TO USE:
 -----------
+* Register the table in the ``CleanUPTables`` model via admin.
+  * ``table_name``: This name must be included in the settings.VALID_MODELS_TO_CLEAN_UP variable before to be saved.
+  * ``date_field``: This field must be of date type and belong to the table defined above.
+  * ``clean_up_rule``: This rule must be defined in the following structure:
+        <br>&emsp;- 1_day, 5_days
+        <br>&emsp;- 1_week, 10_weeks
+        <br>&emsp;- 1_month, 3_months
+        <br>&emsp;- 1_year, 2_years
+  * ``sql_file``: (Optional) This field can be filled in case the default SQL code changes too much for what is needed in this configuration.
+  * ``priority``: This value can be used to define the periodicity with which certain tables are cleaned.
 
+* Import ``FileParserCleanUPTablesManager`` class and called the ``cleanup`` method.
+* All the tables saved in the ``CleanUPTables`` model will be cleaned according to the ``clean_up_rule`` defined.
+
+Basic example
+-------------
+```
+>>> from cleanup_tables.models import CleanUPTables
+>>> instance = CleanUPTables()
+>>> instance.table_name = 'ParserFile'
+>>> instance.date_field = 'created_at'
+>>> instance.clean_up_rule = '6_months'
+>>> instance.priority = 'normal'
+>>> instance.save()
+
+
+>>> from parse.utils import CleanUPTablesManager
+>>> manager = CleanUPTablesManager()
+>>> manager.cleanup()
+>>> manager.logs_deleted
+18256
+```
