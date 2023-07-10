@@ -7,7 +7,7 @@ Installation:
 -------------
 Add this new requirement:
 
-    pip install -e git+https://github.com/johnaflorez/cleanup_tables.git@1.0.1#egg=cleanup_tables
+    pip install -e git+https://github.com/johnaflorez/cleanup_tables.git@1.0.4#egg=cleanup_tables
 
 
 Settings configuration:
