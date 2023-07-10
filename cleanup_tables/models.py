@@ -1,9 +1,11 @@
+import os
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
+from django.template.defaultfilters import slugify
 
 from cleanup_tables.choices import (
     CLEAN_UP_PERIOD_TIME_OPTIONS, HOUR, DAY, WEEK, MONTH, YEAR,
@@ -19,10 +21,16 @@ class CleanUPTables(models.Model):
     Model to manage the models to clean up
     """
 
+    def get_upload_path(self, filename):
+        now = datetime.now()
+        return os.path.join(
+            'cleanup_files', slugify(self.table_name), str(now.year), str(now.month), filename
+        )
+
     table_name = models.CharField(max_length=255, unique=True, help_text=CleanUPTableHelpTextModel.TABLE_NAME)
     date_field = models.CharField(max_length=255, help_text=CleanUPTableHelpTextModel.DATE_FIELD)
     clean_up_rule = models.CharField(max_length=255, help_text=CleanUPTableHelpTextModel.CLEAN_UP_RULE)
-    sql_name = models.CharField(max_length=255, null=True, blank=True)
+    sql_file = models.FileField(null=True, blank=True, upload_to=get_upload_path)
     priority = models.CharField(
         max_length=100,
         choices=CLEAN_UP_PRIORITY_OPTIONS,

@@ -5,6 +5,7 @@ class CleanUPTableConstants:
 
     FULL_FORMAT_DATE = '%F %T.%f'
     LIMIT_TO_CLEAN = 50000
+    SQL_NAME = 'sql/cleanup_process.sql'
 
 
 class CleanUPTableHelpTextModel:

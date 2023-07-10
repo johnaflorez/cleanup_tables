@@ -27,15 +27,14 @@ class CommonFileUtilsMethodsMixin(object):
         return os.path.splitext(filename)[-1]
 
     @staticmethod
-    def get_string_from_file(path, filename):
+    def get_string_from_file(path):
         """
         Get the file from the path in string mode
         :param path: the path from the file selected
-        :param filename: the filename to read and return
         :return: the string with the content from the file selected
         """
 
-        with open(os.path.join(path, filename), 'r') as _file:
+        with open(path, 'r') as _file:
             file_raw = _file.read()
         return file_raw
 

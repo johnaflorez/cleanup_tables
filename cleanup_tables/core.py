@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import connection, transaction
@@ -64,13 +66,14 @@ class CleanUPTablesManager(CleanUPTableConstants, CommonUtilsMethodsMixin):
         Prepare environment to start delete process
         """
 
-        self.modal_class = table.get_model_class(table.table_name)
+        self._initiate_variables(table)
+        self.model_class = table.get_model_class(table.table_name)
         self.date_rule = table.get_date()
-        self.date_field = '{0}__lte'.format(table.date_field)
+        self.date_field = table.date_field
         self.total_events = self._total_data_to_delete()
-        self.sql_raw = self._open_sql_file(table.sql_name)
+        self.sql_raw = self._open_sql_file(table.sql_file)
         self.user = self._get_user()
-        return self._initiate_variables(table)
+        return table
 
     def _initiate_variables(self, table):
         """
@@ -79,7 +82,7 @@ class CleanUPTablesManager(CleanUPTableConstants, CommonUtilsMethodsMixin):
         """
 
         self.errors = None
-        self.modal_class = None
+        self.model_class = None
         self.date_rule = None
         self.logs_deleted = 0
         self.total_events = 0
@@ -94,7 +97,8 @@ class CleanUPTablesManager(CleanUPTableConstants, CommonUtilsMethodsMixin):
         will be called according to the limit allowed in the CleanUPTableConstants.LIMIT_TO_CLEAN constant
         """
 
-        total_data = self.modal_class.objects.filter(**{self.date_field: self.date_rule}).count()
+        date_field = '{0}__lte'.format(self.date_field)
+        total_data = self.model_class.objects.filter(**{date_field: self.date_rule}).count()
         if total_data:
             return int(round((total_data / self.LIMIT_TO_CLEAN), 0)) + 1
         return 0
@@ -110,19 +114,17 @@ class CleanUPTablesManager(CleanUPTableConstants, CommonUtilsMethodsMixin):
             params = {'username': settings.USERNAME_BY_DEFAULT}
         return User.objects.get(**params)
 
-    def _open_sql_file(self, sql_name):
+    def _open_sql_file(self, sql_file):
         """
         Get SQL content
         """
 
-        path = self.file.get_base_path(__file__)
-        if sql_name:
-            path = settings.BASE_DIR
+        if sql_file:
+            path = sql_file.path
+        else:
+            path = os.path.join(self.file.get_base_path(__file__), self.SQL_NAME)
 
-        return self.file.get_string_from_file(
-            path=path,
-            filename=sql_name
-        )
+        return self.file.get_string_from_file(path=path)
 
     def _get_sql(self):
         """

@@ -12,7 +12,7 @@ class CleanUPTablesAdmin(admin.ModelAdmin):
         'date_field',
         'clean_up_rule',
         'priority',
-        'sql_name',
+        'sql_file',
         'created_at',
         'last_executed',
         'updated_at',
