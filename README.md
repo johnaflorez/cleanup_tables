@@ -54,8 +54,9 @@ HOW TO USE:
   * ``sql_file``: (Optional) This field can be filled in case the default SQL code changes too much for what is needed in this configuration.
   * ``priority``: This value can be used to define the periodicity with which certain tables are cleaned.
 
-* Import ``FileParserCleanUPTablesManager`` class and called the ``cleanup`` method.
+* Import ``CleanUPTablesManager`` class and called the ``cleanup`` method.
 * All the tables saved in the ``CleanUPTables`` model will be cleaned according to the ``clean_up_rule`` defined.
+
 
 Basic example
 -------------
@@ -75,3 +76,27 @@ Basic example
 >>> manager.logs_deleted
 18256
 ```
+
+
+SQL FILE
+--------
+This is the SQL file configured by default:
+```
+DELETE
+  FROM {db_table_name}
+  WHERE {primary_key_name} IN (
+    SELECT
+    {primary_key_name}
+    FROM {db_table_name}
+    WHERE {db_condition}
+    ORDER BY
+      {primary_key_name} DESC
+    OFFSET 0 ROWS
+    FETCH NEXT {limit} ROWS ONLY)
+```
+
+Each table saved in the ``CleanUPTables`` model can manage its own SQL file as long as it follows the established conventions:
+* ``db_table_name``
+* ``primary_key_name``
+* ``db_condition``
+* ``limit``
